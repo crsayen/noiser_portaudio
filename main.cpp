@@ -40,7 +40,7 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
     (void) statusFlags;
     (void) inputBuffer;
     float ptr;
-    memset(out, 0, 64 * sizeof(float));
+    memset(out, 0, FRAMES_PER_BUFFER * sizeof(float));
     for( i=0; i<framesPerBuffer; i++ )
     {
         if (PaUtil_GetRingBufferReadAvailable(&data->rBufToRT)){
@@ -73,16 +73,16 @@ int main(void)
     printf("PortAudio Test. SR = %d, BufSize = %d\n", SAMPLE_RATE, FRAMES_PER_BUFFER);
 
     /* initialise ring buffers */
-    data.rBufToRTData = PaUtil_AllocateMemory(sizeof(float) * 64);
+    data.rBufToRTData = PaUtil_AllocateMemory(sizeof(float) * FRAMES_PER_BUFFER);
     if (data.rBufToRTData == NULL){
         return 1;
     }
-    PaUtil_InitializeRingBuffer(&data.rBufToRT, sizeof(float), 64, data.rBufToRTData);
-    data.rBufFromRTData = PaUtil_AllocateMemory(sizeof(float) * 64);
+    PaUtil_InitializeRingBuffer(&data.rBufToRT, sizeof(float), FRAMES_PER_BUFFER, data.rBufToRTData);
+    data.rBufFromRTData = PaUtil_AllocateMemory(sizeof(float) * FRAMES_PER_BUFFER);
     if (data.rBufFromRTData == NULL){
         return 1;
     }
-    PaUtil_InitializeRingBuffer(&data.rBufFromRT, sizeof(float) , 64, data.rBufFromRTData);
+    PaUtil_InitializeRingBuffer(&data.rBufFromRT, sizeof(float) , FRAMES_PER_BUFFER, data.rBufFromRTData);
     
     err = Pa_Initialize();
     if( err != paNoError ) goto error;
@@ -124,7 +124,7 @@ int main(void)
             --data.nframes;
         }
         float result;
-        while(data.nframes < 64){
+        while(data.nframes < FRAMES_PER_BUFFER){
             result = loop();
             PaUtil_WriteRingBuffer(&data.rBufToRT, &result, 1);
             ++data.nframes;
